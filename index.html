@@ -1,0 +1,54 @@
+---
+layout: default
+title: Home
+---
+
+<div class="mb-12 text-center">
+    <div class="inline-block relative">
+        <h2 class="text-3xl md:text-5xl font-black uppercase text-black dark:text-white mb-2">
+            Welcome
+        </h2>
+        <div class="h-1 w-24 bg-primary mx-auto"></div>
+    </div>
+    <p class="text-sm font-mono text-gray-500 dark:text-gray-400 mt-4">[SYSTEM_INITIALIZED] // STATUS: ONLINE</p>
+</div>
+
+<div class="border border-black dark:border-border-dark bg-white dark:bg-surface-dark p-8 mb-8">
+    <div class="flex flex-col md:flex-row gap-8 items-center">
+        <div class="w-48 h-48 border-2 border-black dark:border-primary bg-gray-100 dark:bg-background-dark flex items-center justify-center">
+            <span class="material-icons text-6xl text-gray-400 dark:text-gray-600">person</span>
+        </div>
+        <div class="flex-1 text-center md:text-left">
+            <h3 class="text-2xl font-bold uppercase text-black dark:text-white mb-2">Your Name</h3>
+            <p class="text-primary font-mono text-sm mb-4">Security Researcher / Cyber Architect</p>
+            <p class="text-gray-600 dark:text-gray-400 font-sans leading-relaxed">
+                Specializing in vulnerability research, penetration testing, and secure system architecture.
+                Building robust defenses against emerging cyber threats.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {% for item in site.navigation %}
+    {% if item.title != "Home" %}
+    <a href="{{ item.url | relative_url }}"
+       class="group border border-black dark:border-border-dark bg-white dark:bg-surface-dark p-6 hover:shadow-[8px_8px_0px_0px_rgba(0,255,65,1)] dark:hover:shadow-[8px_8px_0px_0px_rgba(0,255,65,0.4)] transition-all duration-300">
+        <h3 class="text-xl font-bold uppercase text-black dark:text-white group-hover:text-primary transition-colors mb-2">
+            {{ item.title }}
+        </h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 font-mono">
+            {% if item.title == "About" %}
+            [BIO_DATA] Personal information and background
+            {% elsif item.title == "Publications" %}
+            [RESEARCH_LOG] Academic papers and articles
+            {% elsif item.title == "Projects" %}
+            [PROJECT_ARCHIVE] Technical projects and tools
+            {% elsif item.title == "Contact" %}
+            [COMM_LINK] Get in touch
+            {% endif %}
+        </p>
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>

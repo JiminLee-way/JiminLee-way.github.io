@@ -1,0 +1,19 @@
+<footer class="w-full bg-white dark:bg-surface-dark border-t border-black dark:border-border-dark py-8">
+    <div
+        class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-500 font-mono">
+        <div>
+            &copy; {{ 'now' | date: "%Y" }} {{ site.title | default: "CYBER_ARCHITECT" }}. All systems operational.
+        </div>
+        <div class="flex gap-6">
+            {% if site.social.github %}
+            <a class="hover:text-black dark:hover:text-white transition-colors" href="https://github.com/{{ site.social.github }}" target="_blank">GITHUB</a>
+            {% endif %}
+            {% if site.social.linkedin %}
+            <a class="hover:text-black dark:hover:text-white transition-colors" href="https://linkedin.com/in/{{ site.social.linkedin }}" target="_blank">LINKEDIN</a>
+            {% endif %}
+            {% if site.social.email %}
+            <a class="hover:text-black dark:hover:text-white transition-colors" href="mailto:{{ site.social.email }}">EMAIL</a>
+            {% endif %}
+        </div>
+    </div>
+</footer>

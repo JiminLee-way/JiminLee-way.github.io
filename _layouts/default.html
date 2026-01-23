@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="ko">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description }}" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@100;400;700&amp;family=Space+Grotesk:wght@300;500;700&amp;display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#00FF41",
+                        "background-light": "#FAFAFA",
+                        "background-dark": "#0D1117",
+                        "border-light": "#000000",
+                        "border-dark": "#30363D",
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#161B22",
+                    },
+                    fontFamily: {
+                        mono: ["'JetBrains Mono'", "monospace"],
+                        display: ["'Space Grotesk'", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0px",
+                        'md': '4px',
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        body {
+            cursor: crosshair;
+        }
+        a:hover {
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-background-light dark:bg-background-dark text-black dark:text-gray-300 font-mono transition-colors duration-300 min-h-screen flex flex-col">
+
+    {% include header.html %}
+
+    <main class="w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-grow">
+        {{ content }}
+    </main>
+
+    {% include footer.html %}
+
+    <script>
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const themeIcon = document.getElementById('theme-icon');
+
+        function updateIcon() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeIcon.textContent = 'dark_mode';
+            } else {
+                themeIcon.textContent = 'light_mode';
+            }
+        }
+
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateIcon();
+
+        themeToggleBtn.addEventListener('click', function () {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+            updateIcon();
+        });
+    </script>
+</body>
+
+</html>

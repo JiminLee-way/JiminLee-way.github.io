@@ -1,0 +1,38 @@
+# Site settings
+title: CYBER_ARCHITECT
+description: Security Researcher & Cyber Architect Portfolio
+baseurl: "" # the subpath of your site, e.g. /blog
+url: "" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+
+# Theme settings
+theme_color: "#00FF41"
+
+# Navigation
+navigation:
+  - title: About
+    url: /about/
+  - title: Publications
+    url: /publications/
+  - title: Projects
+    url: /projects/
+  - title: Contact
+    url: /contact/
+
+# Social links (customize these)
+social:
+  github: ""
+  linkedin: ""
+  twitter: ""
+  email: ""
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - README.md
