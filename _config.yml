@@ -31,6 +31,10 @@ social:
   twitter: ""
   email: ""
 
+# Include _pages folder
+include:
+  - _pages
+
 # Exclude from processing
 exclude:
   - Gemfile
