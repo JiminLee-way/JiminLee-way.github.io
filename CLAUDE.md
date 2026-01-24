@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a Jekyll-based personal portfolio website for CYBER_AMADEUS (Jimin Lee), hosted on GitHub Pages at `cyber-amadeus.github.io`. The site uses Tailwind CSS via CDN with a cyberpunk/matrix aesthetic (primary color: #00FF41).
+This is a Jekyll-based personal portfolio website for JIMIN_LEE, hosted on GitHub Pages at `jiminlee-way.github.io/JiminLee.github.io`. The site uses Tailwind CSS via CDN with a cyberpunk/matrix aesthetic (primary color: #00FF41).
 
 ## Build & Development
 
