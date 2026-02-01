@@ -29,6 +29,7 @@ bundle exec jekyll serve
 - `about.html` - Detailed bio, skills, experience, education, awards
 - `publications.html` - Academic publications (Domestic Conference section)
 - `projects.html` - Project portfolio with images
+- `activities.html` - Workshops, challenges, competitions (Workshops & Challenges section, Competitions section placeholder)
 - `cve-kve.html` - Vulnerability disclosures (KVE entries with stats)
 - `contact.html` - Contact form and links
 
@@ -47,3 +48,18 @@ sips -s format jpeg -s formatOptions 70 -Z 800 input.png --out assets/images/out
 **Liquid templating**: Pages use Jekyll/Liquid syntax like `{{ '/path' | relative_url }}` for URLs.
 
 **Dark mode**: Controlled via `dark` class on `<html>`, toggled by JavaScript in default layout.
+
+## Git & Deployment
+
+**Repository**: `github.com:JiminLee-way/JiminLee.github.io.git`
+
+**Branch**: `main` (default, auto-deploys to GitHub Pages)
+
+**Workflow**:
+```bash
+git add <files>
+git commit -m "Commit message"
+git push
+```
+
+GitHub Pages automatically builds and deploys on push to `main`. Changes typically reflect within 1-2 minutes.
