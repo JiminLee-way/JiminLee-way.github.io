@@ -1,7 +1,7 @@
 # Site settings
 title: ❯ JIMIN_LEE
 description: Security Researcher & Cyber Architect Portfolio
-baseurl: "/JiminLee.github.io" # the subpath of your site, e.g. /blog
+baseurl: "" # served at root of jiminlee-way.github.io
 url: "https://jiminlee-way.github.io" # the base hostname & protocol for your site
 
 # Build settings
