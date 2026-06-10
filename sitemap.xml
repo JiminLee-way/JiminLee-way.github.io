@@ -1,0 +1,17 @@
+---
+layout: null
+---
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>{{ "/" | absolute_url }}</loc>
+  </url>
+  {% assign indexed_pages = site.pages | where_exp: "page", "page.url != '/' and page.url != '/sitemap.xml' and page.url != '/robots.txt'" | sort: "url" %}
+  {% for page in indexed_pages %}
+    {% if page.url and page.title %}
+  <url>
+    <loc>{{ page.url | absolute_url }}</loc>
+  </url>
+    {% endif %}
+  {% endfor %}
+</urlset>
