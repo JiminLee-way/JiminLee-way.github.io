@@ -8,10 +8,6 @@ url: "https://jiminlee-way.github.io" # the base hostname & protocol for your si
 markdown: kramdown
 permalink: pretty
 
-plugins:
-  - jekyll-sitemap
-  - jekyll-feed
-
 # Theme settings
 theme_color: "#00FF41"
 
