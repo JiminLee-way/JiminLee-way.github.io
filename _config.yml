@@ -8,6 +8,10 @@ url: "https://jiminlee-way.github.io" # the base hostname & protocol for your si
 markdown: kramdown
 permalink: pretty
 
+plugins:
+  - jekyll-sitemap
+  - jekyll-feed
+
 # Theme settings
 theme_color: "#00FF41"
 
@@ -28,9 +32,9 @@ navigation:
 
 # Social links (customize these)
 social:
-  github: ""
-  linkedin: ""
-  twitter: ""
+  github: "JiminLee-way"
+  linkedin:
+  twitter:
   email: "cyber_requiem@outlook.kr"
 
 # Include _pages folder
