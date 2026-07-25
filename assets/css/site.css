@@ -1,0 +1,222 @@
+.ai-usage-panel {
+    --usage-background: #ffffff;
+    --usage-surface: #fafafa;
+    --usage-border: #000000;
+    --usage-text: #000000;
+    --usage-muted: #5f6773;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border: 1px solid var(--usage-border);
+    background: var(--usage-background);
+    color: var(--usage-text);
+    padding: 1.5rem;
+}
+
+.dark .ai-usage-panel {
+    --usage-background: #161b22;
+    --usage-surface: #0d1117;
+    --usage-border: #30363d;
+    --usage-text: #f0f6fc;
+    --usage-muted: #8b949e;
+}
+
+.ai-usage-panel::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background-image:
+        linear-gradient(to right, rgb(48 54 61 / 14%) 1px, transparent 1px),
+        linear-gradient(to bottom, rgb(48 54 61 / 14%) 1px, transparent 1px);
+    background-size: 24px 24px;
+    content: "";
+    pointer-events: none;
+}
+
+.ai-usage-header,
+.ai-usage-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.ai-usage-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--usage-text);
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ai-usage-title::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #00ff41;
+    content: "";
+}
+
+.ai-usage-disclosure {
+    color: var(--usage-muted);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-align: right;
+}
+
+.ai-usage-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 1.25rem 0;
+    border: 1px solid var(--usage-border);
+    background: var(--usage-border);
+}
+
+.ai-usage-metric {
+    min-width: 0;
+    background: var(--usage-surface);
+    padding: 1rem;
+}
+
+.ai-usage-metric dt {
+    margin-bottom: 0.5rem;
+    color: var(--usage-muted);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.ai-usage-metric dd {
+    overflow: hidden;
+    margin: 0;
+    color: var(--usage-text);
+    font-size: clamp(1.25rem, 4vw, 1.75rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ai-usage-metric--primary dd {
+    color: #00c934;
+}
+
+.dark .ai-usage-metric--primary dd {
+    color: #00ff41;
+}
+
+.ai-usage-chart {
+    margin: 0;
+}
+
+.ai-usage-chart-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.625rem;
+    color: var(--usage-muted);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.ai-usage-bars {
+    display: grid;
+    height: 4rem;
+    grid-template-columns: repeat(30, minmax(2px, 1fr));
+    align-items: end;
+    gap: clamp(2px, 0.5vw, 6px);
+}
+
+.ai-usage-bar {
+    min-height: 2px;
+    background: #00c934;
+    opacity: 0.16;
+}
+
+.dark .ai-usage-bar {
+    background: #00ff41;
+}
+
+.ai-usage-bar--1 {
+    height: 15%;
+    opacity: 0.48;
+}
+
+.ai-usage-bar--2 {
+    height: 30%;
+    opacity: 0.61;
+}
+
+.ai-usage-bar--3 {
+    height: 50%;
+    opacity: 0.74;
+}
+
+.ai-usage-bar--4 {
+    height: 72%;
+    opacity: 0.87;
+}
+
+.ai-usage-bar--5 {
+    height: 100%;
+    opacity: 1;
+}
+
+.ai-usage-footer {
+    margin-top: 0.875rem;
+    color: var(--usage-muted);
+    font-size: 0.625rem;
+    letter-spacing: 0.04em;
+}
+
+.ai-usage-cost-note {
+    margin-top: 0.75rem;
+    color: var(--usage-muted);
+    font-family: "Space Grotesk", sans-serif;
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 639px) {
+    .ai-usage-panel {
+        padding: 1rem;
+    }
+
+    .ai-usage-header,
+    .ai-usage-footer {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .ai-usage-disclosure {
+        text-align: left;
+    }
+
+    .ai-usage-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ai-usage-metric--primary {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+
+    .ai-usage-metric dd {
+        font-size: 1.25rem;
+    }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+    .ai-usage-panel::before {
+        display: none;
+    }
+}

@@ -31,6 +31,60 @@ title: Home
     </div>
 </div>
 
+{% assign usage = site.data.ai_usage %}
+{% if usage %}
+<section id="ai-usage" class="ai-usage-panel mb-8" aria-labelledby="ai-usage-title">
+    <div class="ai-usage-header">
+        <h3 id="ai-usage-title" class="ai-usage-title">[AI_COMPUTE_TELEMETRY]</h3>
+        <p class="ai-usage-disclosure">{{ usage.disclosure }}</p>
+    </div>
+
+    <dl class="ai-usage-metrics">
+        <div class="ai-usage-metric">
+            <dt>Measured Since</dt>
+            <dd>
+                <time datetime="{{ usage.measurementStartedAt }}">
+                    {{ usage.measurementStartedAtDisplay }}
+                </time>
+            </dd>
+        </div>
+        <div class="ai-usage-metric ai-usage-metric--primary">
+            <dt>Total Tokens</dt>
+            <dd title="{{ usage.totals.totalTokensFull }} tokens">
+                {{ usage.totals.totalTokensFormatted }}
+            </dd>
+        </div>
+        <div class="ai-usage-metric">
+            <dt>Est. Cost (USD)</dt>
+            <dd>{{ usage.totals.totalCostFormatted }}</dd>
+        </div>
+    </dl>
+
+    <figure class="ai-usage-chart"
+        aria-label="Token usage for the most recent 30 calendar days">
+        <figcaption class="ai-usage-chart-label">
+            <span>Recent 30 Days</span>
+            <span>{{ usage.totals.activeDays30 }} Active Days</span>
+        </figcaption>
+        <div class="ai-usage-bars" aria-hidden="true">
+            {% for day in usage.daily30 %}
+            <span class="ai-usage-bar ai-usage-bar--{{ day.intensity }}"
+                title="{{ day.date }}: {{ day.totalTokensFormatted }} tokens"></span>
+            {% endfor %}
+        </div>
+    </figure>
+
+    <div class="ai-usage-footer">
+        <span>{{ usage.scopeDisplay }}</span>
+        <span>
+            Updated
+            <time datetime="{{ usage.generatedAt }}">{{ usage.generatedAtDisplay }}</time>
+        </span>
+    </div>
+    <p class="ai-usage-cost-note">{{ usage.costDisclosure }}</p>
+</section>
+{% endif %}
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     {% for item in site.navigation %}
     {% if item.title != "Home" %}
