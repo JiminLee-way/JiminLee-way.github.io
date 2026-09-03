@@ -10,7 +10,7 @@ import {
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "20.0.18";
+const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "20.0.20";
 const TIME_ZONE = "Asia/Seoul";
 const PROVIDERS = [
     { id: "codex", label: "Codex" },
