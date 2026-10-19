@@ -12,6 +12,8 @@ import { fileURLToPath } from "node:url";
 
 const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "20.0.20";
 const TIME_ZONE = "Asia/Seoul";
+// Claude Code deletes session logs older than this by default (cleanupPeriodDays).
+const LOG_RETENTION_DAYS = 30;
 const PROVIDERS = [
     { id: "codex", label: "Codex" },
     { id: "claude", label: "Claude Code" },
@@ -20,6 +22,7 @@ const PROVIDERS = [
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..");
 const dataPath = resolve(repositoryRoot, "_data", "ai_usage.json");
+const ledgerPath = resolve(scriptDirectory, "ai-usage-ledger.json");
 const svgPath = resolve(
     repositoryRoot,
     "assets",
@@ -36,7 +39,8 @@ Usage:
   node scripts/update-ai-usage.mjs
   node scripts/update-ai-usage.mjs --dry-run
 
-Reads local Codex and Claude Code logs through ccusage, then refreshes:
+Reads local Codex and Claude Code logs through ccusage, merges them into
+scripts/ai-usage-ledger.json, then refreshes:
   _data/ai_usage.json
   assets/generated/ai-usage.svg
 
@@ -226,7 +230,63 @@ function readPreviousData() {
     }
 }
 
-function aggregate(providerRows, previousData, now) {
+function readLedger() {
+    if (!existsSync(ledgerPath)) {
+        return { schemaVersion: 1, baseline: null, daily: [] };
+    }
+
+    let ledger;
+    try {
+        ledger = JSON.parse(readFileSync(ledgerPath, "utf8"));
+    } catch {
+        throw new Error(
+            `scripts/ai-usage-ledger.json exists but is not valid JSON. Fix it before updating.`,
+        );
+    }
+
+    if (!Array.isArray(ledger.daily)) {
+        throw new Error(
+            `scripts/ai-usage-ledger.json is missing its daily array.`,
+        );
+    }
+
+    return ledger;
+}
+
+function mergeLedgerRows(ledger, localRows, now) {
+    const baselineThrough = ledger.baseline?.through ?? "";
+    const finalizedBefore = dateKeyInSeoul(
+        new Date(now.getTime() - LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000),
+    );
+    const rows = new Map(
+        ledger.daily.map((row) => [`${row.date}|${row.provider}`, row]),
+    );
+
+    for (const row of localRows) {
+        if (row.date <= baselineThrough) {
+            continue;
+        }
+
+        // Older days may be partially pruned locally; keep the recorded value.
+        const key = `${row.date}|${row.provider}`;
+        if (rows.has(key) && row.date < finalizedBefore) {
+            continue;
+        }
+
+        rows.set(key, {
+            ...row,
+            totalCostUSD: roundCurrency(row.totalCostUSD),
+        });
+    }
+
+    return [...rows.values()].sort(
+        (a, b) =>
+            a.date.localeCompare(b.date) ||
+            a.provider.localeCompare(b.provider),
+    );
+}
+
+function aggregate(rows, previousData, baseline, now) {
     const byDate = new Map();
     const providerTotals = new Map(
         PROVIDERS.map((provider) => [
@@ -234,13 +294,15 @@ function aggregate(providerRows, previousData, now) {
             {
                 id: provider.id,
                 label: provider.label,
-                totalTokens: 0,
-                totalCostUSD: 0,
+                totalTokens:
+                    baseline?.providers?.[provider.id]?.totalTokens ?? 0,
+                totalCostUSD:
+                    baseline?.providers?.[provider.id]?.totalCostUSD ?? 0,
             },
         ]),
     );
 
-    for (const row of providerRows.flat()) {
+    for (const row of rows) {
         const daily = byDate.get(row.date) ?? {
             date: row.date,
             totalTokens: 0,
@@ -260,21 +322,24 @@ function aggregate(providerRows, previousData, now) {
         throw new Error("No Codex or Claude Code usage rows were found.");
     }
 
-    const earliestLogDate = allDates[0];
-    const previousStart = previousData?.measurementStartedAt;
-    const measurementStartedAt =
-        typeof previousStart === "string" &&
-        /^\d{4}-\d{2}-\d{2}$/.test(previousStart)
-            ? [previousStart, earliestLogDate].sort()[0]
-            : earliestLogDate;
+    const measurementStartedAt = [
+        previousData?.measurementStartedAt,
+        baseline?.measurementStartedAt,
+        allDates[0],
+    ]
+        .filter(
+            (date) =>
+                typeof date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(date),
+        )
+        .sort()[0];
 
-    const totalTokens = [...byDate.values()].reduce(
-        (sum, row) => sum + row.totalTokens,
+    const totalTokens = [...providerTotals.values()].reduce(
+        (sum, provider) => sum + provider.totalTokens,
         0,
     );
     const totalCostUSD = roundCurrency(
-        [...byDate.values()].reduce(
-            (sum, row) => sum + row.totalCostUSD,
+        [...providerTotals.values()].reduce(
+            (sum, provider) => sum + provider.totalCostUSD,
             0,
         ),
     );
@@ -471,19 +536,29 @@ function writeIfChanged(path, content) {
 
 function main() {
     console.log(`Collecting usage with ccusage ${CCUSAGE_VERSION}...`);
-    const providerRows = PROVIDERS.map((provider) => {
+    const localRows = PROVIDERS.flatMap((provider) => {
         const rows = runCcusage(provider);
         console.log(`  ${provider.label}: ${rows.length} daily rows`);
         return rows;
     });
 
+    const now = new Date();
+    const ledger = readLedger();
+    const ledgerRows = mergeLedgerRows(ledger, localRows, now);
     const previousData = readPreviousData();
-    const aggregated = aggregate(providerRows, previousData, new Date());
+    const aggregated = aggregate(
+        ledgerRows,
+        previousData,
+        ledger.baseline,
+        now,
+    );
     const data = preserveTimestampWhenUnchanged(aggregated, previousData);
 
+    const ledgerContent = `${JSON.stringify({ ...ledger, daily: ledgerRows }, null, 2)}\n`;
     const jsonContent = `${JSON.stringify(data, null, 2)}\n`;
     const svgContent = renderSvg(data);
 
+    const ledgerStatus = writeIfChanged(ledgerPath, ledgerContent);
     const dataStatus = writeIfChanged(dataPath, jsonContent);
     const svgStatus = writeIfChanged(svgPath, svgContent);
 
@@ -493,6 +568,7 @@ function main() {
     );
     console.log(`Estimated cost: ${data.totals.totalCostFormatted}`);
     console.log(`Active days (30d): ${data.totals.activeDays30}`);
+    console.log(`Ledger: ${ledgerStatus}`);
     console.log(`Data file: ${dataStatus}`);
     console.log(`SVG card: ${svgStatus}`);
     console.log("\nNo Git commands were run.");

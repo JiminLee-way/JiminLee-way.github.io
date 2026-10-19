@@ -13,20 +13,37 @@ node scripts/update-ai-usage.mjs --dry-run
 ```
 
 The updater reads local Codex and Claude Code logs through the pinned
-`ccusage` version and refreshes:
+`ccusage` version, merges them into `scripts/ai-usage-ledger.json`, and
+refreshes:
 
 - `_data/ai_usage.json` for the Jekyll home page
 - `assets/generated/ai-usage.svg` for the GitHub profile
 
+## Ledger
+
+`scripts/ai-usage-ledger.json` keeps usage that local logs can no longer
+provide:
+
+- `baseline` holds fixed per-provider totals from a previous machine, counted
+  through `baseline.through`. It is set by hand and never rewritten by the
+  updater. Local rows dated on or before `baseline.through` are ignored.
+- `daily` holds one row per `YYYY-MM-DD` and provider after the baseline.
+  Rows stay in the ledger after the local logs are deleted (Claude Code prunes
+  session logs older than 30 days by default).
+
+Totals are `baseline` plus the sum of `daily`. Commit the ledger together with
+the generated files.
+
 ## Duplicate protection
 
-The updater does not append snapshots. It rebuilds usage from the local logs
-and combines records using `YYYY-MM-DD` as the unique key. Running it multiple
-times on the same day updates that day's totals in place. When the calculated
-data is identical, neither output file is rewritten.
+The updater does not append snapshots. Ledger rows use `date` + `provider` as
+the unique key, so running it multiple times on the same day updates that
+day's totals in place. Local logs replace ledger rows from the last 30 days;
+older rows are kept as recorded, because their local logs may be partially
+pruned. When the calculated data is identical, no file is rewritten.
 
-The earliest measurement date is preserved as the minimum of the previous
-start date and the earliest date still present in local logs.
+The earliest measurement date is the minimum of the previous start date, the
+baseline start date, and the earliest ledger date.
 
 ## Cost meaning
 
