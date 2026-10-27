@@ -19,6 +19,13 @@ refreshes:
 - `_data/ai_usage.json` for the Jekyll home page
 - `assets/generated/ai-usage.svg` for the GitHub profile
 
+Codex compresses older rollouts to `.jsonl.zst`, which the pinned `ccusage`
+does not read. The updater copies `sessions/` and `archived_sessions/` from
+`CODEX_HOME` (default `~/.codex`) into a temporary directory, decompresses the
+`.zst` files there, and points `ccusage` at that copy. The originals are not
+modified. If a run would lower a day already in the ledger, the updater prints
+a warning, since that usually means local logs are missing.
+
 ## Ledger
 
 `scripts/ai-usage-ledger.json` keeps usage that local logs can no longer

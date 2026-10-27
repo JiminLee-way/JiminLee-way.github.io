@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "measurementStartedAt": "2026-06-10",
   "measurementStartedAtDisplay": "2026-06-10",
-  "generatedAt": "2026-10-19T13:54:34+09:00",
-  "generatedAtDisplay": "2026-10-19 13:54 KST",
+  "generatedAt": "2026-10-28T08:22:38+09:00",
+  "generatedAtDisplay": "2026-10-28 08:22 KST",
   "source": "ccusage local logs",
   "scope": [
     "Codex",
@@ -13,121 +13,58 @@
   "disclosure": "SELF-REPORTED · LOCAL LOGS",
   "costDisclosure": "ESTIMATED FROM MODEL LIST PRICES · NOT ACTUAL BILLING",
   "totals": {
-    "totalTokens": 30161201381,
-    "totalTokensFormatted": "30.16B",
-    "totalTokensFull": "30,161,201,381",
-    "totalCostUSD": 22934.113512,
-    "totalCostFormatted": "$22,934.11",
+    "totalTokens": 39158328285,
+    "totalTokensFormatted": "39.16B",
+    "totalTokensFull": "39,158,328,285",
+    "totalCostUSD": 28476.913008,
+    "totalCostFormatted": "$28,476.91",
     "activeDays30": 30
   },
   "providers": [
     {
       "id": "codex",
       "label": "Codex",
-      "totalTokens": 16359254505,
-      "totalCostUSD": 14379.197511,
-      "totalTokensFormatted": "16.36B",
-      "totalCostFormatted": "$14,379.20"
+      "totalTokens": 18973895212,
+      "totalCostUSD": 17253.6895,
+      "totalTokensFormatted": "18.97B",
+      "totalCostFormatted": "$17,253.69"
     },
     {
       "id": "claude",
       "label": "Claude Code",
-      "totalTokens": 13801946876,
-      "totalCostUSD": 8554.916001,
-      "totalTokensFormatted": "13.8B",
-      "totalCostFormatted": "$8,554.92"
+      "totalTokens": 20184433073,
+      "totalCostUSD": 11223.223508,
+      "totalTokensFormatted": "20.18B",
+      "totalCostFormatted": "$11,223.22"
     }
   ],
   "daily30": [
     {
-      "date": "2026-09-20",
-      "totalTokens": 193855021,
-      "totalCostUSD": 207.922567,
-      "totalTokensFormatted": "193,855,021",
-      "intensity": 1
-    },
-    {
-      "date": "2026-09-21",
-      "totalTokens": 106195537,
-      "totalCostUSD": 75.896707,
-      "totalTokensFormatted": "106,195,537",
-      "intensity": 1
-    },
-    {
-      "date": "2026-09-22",
-      "totalTokens": 260888768,
-      "totalCostUSD": 187.765804,
-      "totalTokensFormatted": "260,888,768",
-      "intensity": 1
-    },
-    {
-      "date": "2026-09-23",
-      "totalTokens": 465795129,
-      "totalCostUSD": 195.056065,
-      "totalTokensFormatted": "465,795,129",
-      "intensity": 2
-    },
-    {
-      "date": "2026-09-24",
-      "totalTokens": 429779306,
-      "totalCostUSD": 155.818952,
-      "totalTokensFormatted": "429,779,306",
-      "intensity": 2
-    },
-    {
-      "date": "2026-09-25",
-      "totalTokens": 754334319,
-      "totalCostUSD": 236.496262,
-      "totalTokensFormatted": "754,334,319",
-      "intensity": 3
-    },
-    {
-      "date": "2026-09-26",
-      "totalTokens": 374572490,
-      "totalCostUSD": 115.483065,
-      "totalTokensFormatted": "374,572,490",
-      "intensity": 2
-    },
-    {
-      "date": "2026-09-27",
-      "totalTokens": 931990051,
-      "totalCostUSD": 276.038634,
-      "totalTokensFormatted": "931,990,051",
-      "intensity": 4
-    },
-    {
-      "date": "2026-09-28",
-      "totalTokens": 377184168,
-      "totalCostUSD": 139.405367,
-      "totalTokensFormatted": "377,184,168",
-      "intensity": 2
-    },
-    {
       "date": "2026-09-29",
-      "totalTokens": 536373377,
-      "totalCostUSD": 331.26635,
-      "totalTokensFormatted": "536,373,377",
+      "totalTokens": 546877607,
+      "totalCostUSD": 345.94405,
+      "totalTokensFormatted": "546,877,607",
       "intensity": 2
     },
     {
       "date": "2026-09-30",
-      "totalTokens": 227727113,
-      "totalCostUSD": 81.340178,
-      "totalTokensFormatted": "227,727,113",
+      "totalTokens": 302238042,
+      "totalCostUSD": 149.486689,
+      "totalTokensFormatted": "302,238,042",
       "intensity": 1
     },
     {
       "date": "2026-10-01",
-      "totalTokens": 346748997,
-      "totalCostUSD": 125.802551,
-      "totalTokensFormatted": "346,748,997",
+      "totalTokens": 388358038,
+      "totalCostUSD": 133.908422,
+      "totalTokensFormatted": "388,358,038",
       "intensity": 2
     },
     {
       "date": "2026-10-02",
-      "totalTokens": 282301937,
-      "totalCostUSD": 120.268912,
-      "totalTokensFormatted": "282,301,937",
+      "totalTokens": 298472194,
+      "totalCostUSD": 140.406024,
+      "totalTokensFormatted": "298,472,194",
       "intensity": 1
     },
     {
@@ -139,45 +76,45 @@
     },
     {
       "date": "2026-10-04",
-      "totalTokens": 301815478,
-      "totalCostUSD": 110.534403,
-      "totalTokensFormatted": "301,815,478",
-      "intensity": 2
+      "totalTokens": 303020767,
+      "totalCostUSD": 110.91097,
+      "totalTokensFormatted": "303,020,767",
+      "intensity": 1
     },
     {
       "date": "2026-10-05",
-      "totalTokens": 434266858,
-      "totalCostUSD": 250.418684,
-      "totalTokensFormatted": "434,266,858",
+      "totalTokens": 435085170,
+      "totalCostUSD": 250.958249,
+      "totalTokensFormatted": "435,085,170",
       "intensity": 2
     },
     {
       "date": "2026-10-06",
-      "totalTokens": 294091395,
-      "totalCostUSD": 200.453762,
-      "totalTokensFormatted": "294,091,395",
+      "totalTokens": 294381719,
+      "totalCostUSD": 200.524376,
+      "totalTokensFormatted": "294,381,719",
       "intensity": 1
     },
     {
       "date": "2026-10-07",
-      "totalTokens": 295138149,
-      "totalCostUSD": 328.430162,
-      "totalTokensFormatted": "295,138,149",
+      "totalTokens": 337094475,
+      "totalCostUSD": 384.513401,
+      "totalTokensFormatted": "337,094,475",
       "intensity": 2
     },
     {
       "date": "2026-10-08",
-      "totalTokens": 140926442,
-      "totalCostUSD": 117.603459,
-      "totalTokensFormatted": "140,926,442",
+      "totalTokens": 203492632,
+      "totalCostUSD": 154.292892,
+      "totalTokensFormatted": "203,492,632",
       "intensity": 1
     },
     {
       "date": "2026-10-09",
-      "totalTokens": 64759512,
-      "totalCostUSD": 84.288813,
-      "totalTokensFormatted": "64,759,512",
-      "intensity": 1
+      "totalTokens": 513885455,
+      "totalCostUSD": 299.190678,
+      "totalTokensFormatted": "513,885,455",
+      "intensity": 2
     },
     {
       "date": "2026-10-10",
@@ -226,7 +163,7 @@
       "totalTokens": 605421196,
       "totalCostUSD": 595.962365,
       "totalTokensFormatted": "605,421,196",
-      "intensity": 3
+      "intensity": 2
     },
     {
       "date": "2026-10-17",
@@ -244,9 +181,72 @@
     },
     {
       "date": "2026-10-19",
-      "totalTokens": 78958800,
-      "totalCostUSD": 56.33568,
-      "totalTokensFormatted": "78,958,800",
+      "totalTokens": 458952979,
+      "totalCostUSD": 362.570722,
+      "totalTokensFormatted": "458,952,979",
+      "intensity": 2
+    },
+    {
+      "date": "2026-10-20",
+      "totalTokens": 819980707,
+      "totalCostUSD": 779.655344,
+      "totalTokensFormatted": "819,980,707",
+      "intensity": 3
+    },
+    {
+      "date": "2026-10-21",
+      "totalTokens": 921682695,
+      "totalCostUSD": 1185.94023,
+      "totalTokensFormatted": "921,682,695",
+      "intensity": 3
+    },
+    {
+      "date": "2026-10-22",
+      "totalTokens": 1283399458,
+      "totalCostUSD": 515.302372,
+      "totalTokensFormatted": "1,283,399,458",
+      "intensity": 5
+    },
+    {
+      "date": "2026-10-23",
+      "totalTokens": 1562680341,
+      "totalCostUSD": 645.804547,
+      "totalTokensFormatted": "1,562,680,341",
+      "intensity": 5
+    },
+    {
+      "date": "2026-10-24",
+      "totalTokens": 1271969098,
+      "totalCostUSD": 618.61194,
+      "totalTokensFormatted": "1,271,969,098",
+      "intensity": 5
+    },
+    {
+      "date": "2026-10-25",
+      "totalTokens": 1413461077,
+      "totalCostUSD": 590.216852,
+      "totalTokensFormatted": "1,413,461,077",
+      "intensity": 5
+    },
+    {
+      "date": "2026-10-26",
+      "totalTokens": 292454749,
+      "totalCostUSD": 215.338712,
+      "totalTokensFormatted": "292,454,749",
+      "intensity": 1
+    },
+    {
+      "date": "2026-10-27",
+      "totalTokens": 264572152,
+      "totalCostUSD": 173.276268,
+      "totalTokensFormatted": "264,572,152",
+      "intensity": 1
+    },
+    {
+      "date": "2026-10-28",
+      "totalTokens": 77536713,
+      "totalCostUSD": 83.303658,
+      "totalTokensFormatted": "77,536,713",
       "intensity": 1
     }
   ]

@@ -2,13 +2,20 @@
 
 import { spawnSync } from "node:child_process";
 import {
+    constants,
+    copyFileSync,
     existsSync,
     mkdirSync,
+    mkdtempSync,
+    readdirSync,
     readFileSync,
+    rmSync,
     writeFileSync,
 } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { homedir, tmpdir } from "node:os";
+import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { zstdDecompressSync } from "node:zlib";
 
 const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "20.0.20";
 const TIME_ZONE = "Asia/Seoul";
@@ -51,7 +58,55 @@ recomputed by date, not appended.
     process.exit(0);
 }
 
-function runCcusage(provider) {
+// Codex compresses older rollouts to .jsonl.zst, which the pinned ccusage
+// skips. Build a temporary CODEX_HOME with every rollout as plain .jsonl.
+function prepareCodexHome() {
+    const sourceHome = process.env.CODEX_HOME || join(homedir(), ".codex");
+    const targetHome = mkdtempSync(join(tmpdir(), "ai-usage-codex-"));
+
+    for (const directory of ["sessions", "archived_sessions"]) {
+        const sourceDirectory = join(sourceHome, directory);
+        if (!existsSync(sourceDirectory)) {
+            continue;
+        }
+
+        const entries = readdirSync(sourceDirectory, {
+            recursive: true,
+            withFileTypes: true,
+        });
+        for (const entry of entries) {
+            if (!entry.isFile()) {
+                continue;
+            }
+
+            const sourcePath = join(entry.parentPath, entry.name);
+            const targetPath = join(
+                targetHome,
+                directory,
+                relative(sourceDirectory, sourcePath),
+            );
+
+            // ccusage ignores symlinks; a clone is copy-on-write where supported.
+            if (entry.name.endsWith(".jsonl")) {
+                mkdirSync(dirname(targetPath), { recursive: true });
+                copyFileSync(sourcePath, targetPath, constants.COPYFILE_FICLONE);
+            } else if (
+                entry.name.endsWith(".jsonl.zst") &&
+                !existsSync(sourcePath.slice(0, -".zst".length))
+            ) {
+                mkdirSync(dirname(targetPath), { recursive: true });
+                writeFileSync(
+                    targetPath.slice(0, -".zst".length),
+                    zstdDecompressSync(readFileSync(sourcePath)),
+                );
+            }
+        }
+    }
+
+    return targetHome;
+}
+
+function runCcusage(provider, env) {
     const commandArgs = [
         "--yes",
         `ccusage@${CCUSAGE_VERSION}`,
@@ -67,6 +122,7 @@ function runCcusage(provider) {
         encoding: "utf8",
         env: {
             ...process.env,
+            ...env,
             NO_COLOR: "1",
         },
         maxBuffer: 100 * 1024 * 1024,
@@ -271,6 +327,13 @@ function mergeLedgerRows(ledger, localRows, now) {
         const key = `${row.date}|${row.provider}`;
         if (rows.has(key) && row.date < finalizedBefore) {
             continue;
+        }
+
+        const recorded = rows.get(key);
+        if (recorded && row.totalTokens < recorded.totalTokens) {
+            console.warn(
+                `  Warning: ${row.provider} ${row.date} drops from ${formatFullTokens(recorded.totalTokens)} to ${formatFullTokens(row.totalTokens)} tokens. Check for missing local logs.`,
+            );
         }
 
         rows.set(key, {
@@ -536,11 +599,20 @@ function writeIfChanged(path, content) {
 
 function main() {
     console.log(`Collecting usage with ccusage ${CCUSAGE_VERSION}...`);
-    const localRows = PROVIDERS.flatMap((provider) => {
-        const rows = runCcusage(provider);
-        console.log(`  ${provider.label}: ${rows.length} daily rows`);
-        return rows;
-    });
+    const codexHome = prepareCodexHome();
+    let localRows;
+    try {
+        localRows = PROVIDERS.flatMap((provider) => {
+            const rows = runCcusage(
+                provider,
+                provider.id === "codex" ? { CODEX_HOME: codexHome } : {},
+            );
+            console.log(`  ${provider.label}: ${rows.length} daily rows`);
+            return rows;
+        });
+    } finally {
+        rmSync(codexHome, { recursive: true, force: true });
+    }
 
     const now = new Date();
     const ledger = readLedger();
