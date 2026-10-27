@@ -12,15 +12,15 @@ Preview collection without writing files:
 node scripts/update-ai-usage.mjs --dry-run
 ```
 
-The updater reads local Codex and Claude Code logs through the pinned
-`ccusage` version, merges them into `scripts/ai-usage-ledger.json`, and
-refreshes:
+The updater reads local Codex and Claude Code logs through `ccusage@latest`
+(override with `CCUSAGE_VERSION=<version>`), merges them into
+`scripts/ai-usage-ledger.json`, and refreshes:
 
 - `_data/ai_usage.json` for the Jekyll home page
 - `assets/generated/ai-usage.svg` for the GitHub profile
 
-Codex compresses older rollouts to `.jsonl.zst`, which the pinned `ccusage`
-does not read. The updater copies `sessions/` and `archived_sessions/` from
+Codex compresses older rollouts to `.jsonl.zst`, which `ccusage` 20.0.20 and
+earlier do not read. The updater copies `sessions/` and `archived_sessions/` from
 `CODEX_HOME` (default `~/.codex`) into a temporary directory, decompresses the
 `.zst` files there, and points `ccusage` at that copy. The originals are not
 modified. If a run would lower a day already in the ledger, the updater prints

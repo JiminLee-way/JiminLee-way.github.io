@@ -17,7 +17,7 @@ import { dirname, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { zstdDecompressSync } from "node:zlib";
 
-const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "20.0.20";
+const CCUSAGE_VERSION = process.env.CCUSAGE_VERSION || "latest";
 const TIME_ZONE = "Asia/Seoul";
 // Claude Code deletes session logs older than this by default (cleanupPeriodDays).
 const LOG_RETENTION_DAYS = 30;
@@ -58,8 +58,8 @@ recomputed by date, not appended.
     process.exit(0);
 }
 
-// Codex compresses older rollouts to .jsonl.zst, which the pinned ccusage
-// skips. Build a temporary CODEX_HOME with every rollout as plain .jsonl.
+// Codex compresses older rollouts to .jsonl.zst, which ccusage 20.0.20 and
+// earlier skip. Build a temporary CODEX_HOME with every rollout as plain .jsonl.
 function prepareCodexHome() {
     const sourceHome = process.env.CODEX_HOME || join(homedir(), ".codex");
     const targetHome = mkdtempSync(join(tmpdir(), "ai-usage-codex-"));
