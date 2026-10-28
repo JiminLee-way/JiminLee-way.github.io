@@ -22,9 +22,17 @@ const TIME_ZONE = "Asia/Seoul";
 // Claude Code deletes session logs older than this by default (cleanupPeriodDays).
 const LOG_RETENTION_DAYS = 30;
 const PROVIDERS = [
-    { id: "codex", label: "Codex" },
-    { id: "claude", label: "Claude Code" },
+    { id: "codex", label: "Codex", ccusage: true },
+    { id: "claude", label: "Claude Code", ccusage: true },
+    { id: "xai", label: "xAI" },
 ];
+// USD per 1M tokens for xAI usage exports, backed out from on-demand rows
+// (they match the billed amounts exactly). grok-bot rows carry no model and
+// bill at two rate sets; the higher one is used. Other products use grok-4.7.
+const XAI_RATES = {
+    "grok-bot": { prompt: 2, cachedPrompt: 0.5, cacheWrite: 2, completion: 6 },
+    default: { prompt: 2, cachedPrompt: 0.3, cacheWrite: 2, completion: 6 },
+};
 
 const scriptDirectory = dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = resolve(scriptDirectory, "..");
@@ -37,17 +45,22 @@ const svgPath = resolve(
     "ai-usage.svg",
 );
 
-const args = new Set(process.argv.slice(2));
+const argv = process.argv.slice(2);
+const args = new Set(argv);
 const dryRun = args.has("--dry-run");
+const xaiCsvPath = args.has("--xai-csv")
+    ? argv[argv.indexOf("--xai-csv") + 1]
+    : null;
 
 if (args.has("--help") || args.has("-h")) {
     console.log(`
 Usage:
   node scripts/update-ai-usage.mjs
   node scripts/update-ai-usage.mjs --dry-run
+  node scripts/update-ai-usage.mjs --xai-csv <usage-export.csv>
 
-Reads local Codex and Claude Code logs through ccusage, merges them into
-scripts/ai-usage-ledger.json, then refreshes:
+Reads local Codex and Claude Code logs through ccusage, plus an optional xAI
+usage export CSV, merges them into scripts/ai-usage-ledger.json, then refreshes:
   _data/ai_usage.json
   assets/generated/ai-usage.svg
 
@@ -192,6 +205,118 @@ function normalizeRow(row, provider) {
         totalTokens,
         totalCostUSD,
     };
+}
+
+function parseCsv(text) {
+    const rows = [];
+    let row = [];
+    let field = "";
+    let quoted = false;
+
+    for (let index = 0; index < text.length; index++) {
+        const character = text[index];
+        if (quoted) {
+            if (character !== '"') {
+                field += character;
+            } else if (text[index + 1] === '"') {
+                field += '"';
+                index++;
+            } else {
+                quoted = false;
+            }
+        } else if (character === '"') {
+            quoted = true;
+        } else if (character === ",") {
+            row.push(field);
+            field = "";
+        } else if (character === "\n" || character === "\r") {
+            if (character === "\r" && text[index + 1] === "\n") {
+                index++;
+            }
+            row.push(field);
+            rows.push(row);
+            row = [];
+            field = "";
+        } else {
+            field += character;
+        }
+    }
+
+    if (field || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+    }
+
+    return rows.filter((cells) => cells.length > 1);
+}
+
+// Token counts and list-price cost per KST day from an xAI usage export.
+// Image and audio usage is not token-based and is skipped.
+function readXaiUsageCsv(path) {
+    if (!existsSync(path)) {
+        throw new Error(`xAI usage CSV not found: ${path}`);
+    }
+
+    const [header, ...records] = parseCsv(readFileSync(path, "utf8"));
+    const column = (name) => {
+        const index = header.indexOf(name);
+        if (index === -1) {
+            throw new Error(`xAI usage CSV is missing the "${name}" column.`);
+        }
+        return index;
+    };
+    const timeColumn = column("Event Time");
+    const productColumn = column("Product");
+    const usageTypeColumn = column("Usage Type");
+    const usageColumn = column("Usage");
+    const billedColumn = column("Pricing Contracted");
+
+    const byDate = new Map();
+    for (const record of records) {
+        const usage = {};
+        for (const [key, value] of Object.entries(
+            JSON.parse(record[usageColumn]),
+        )) {
+            usage[key.toLowerCase().replaceAll(" ", "-")] = Number(value);
+        }
+
+        const tokens = {
+            prompt: usage["prompt-text-tokens"] ?? 0,
+            cachedPrompt: usage["cached-prompt-text-tokens"] ?? 0,
+            cacheWrite: usage["cache-write-text-tokens"] ?? 0,
+            completion: usage["completion-text-tokens"] ?? 0,
+        };
+        const totalTokens = sumNumbers(...Object.values(tokens));
+        if (totalTokens === 0) {
+            continue;
+        }
+
+        const rates = XAI_RATES[record[productColumn]] ?? XAI_RATES.default;
+        const totalCostUSD =
+            record[usageTypeColumn] === "on_demand"
+                ? Number(record[billedColumn])
+                : Object.entries(tokens).reduce(
+                      (sum, [kind, count]) =>
+                          sum + (count * rates[kind]) / 1_000_000,
+                      0,
+                  );
+
+        const date = dateKeyInSeoul(new Date(record[timeColumn]));
+        const daily = byDate.get(date) ?? {
+            date,
+            provider: "xai",
+            totalTokens: 0,
+            totalCostUSD: 0,
+        };
+        daily.totalTokens += toNonNegativeInteger(totalTokens, "xAI tokens");
+        daily.totalCostUSD += toNonNegativeNumber(totalCostUSD, "xAI cost");
+        byDate.set(date, daily);
+    }
+
+    return [...byDate.values()].map((row) => ({
+        ...row,
+        totalCostUSD: roundCurrency(row.totalCostUSD),
+    }));
 }
 
 function toNonNegativeInteger(value, fieldName) {
@@ -342,7 +467,28 @@ function mergeLedgerRows(ledger, localRows, now) {
         });
     }
 
-    return [...rows.values()].sort(
+    return sortLedgerRows([...rows.values()]);
+}
+
+// Exports are fixed billing records, so a day only grows. Taking the larger
+// row keeps a day intact when two exports each cover part of it.
+function mergeImportedRows(ledgerRows, importedRows) {
+    const rows = new Map(
+        ledgerRows.map((row) => [`${row.date}|${row.provider}`, row]),
+    );
+
+    for (const row of importedRows) {
+        const key = `${row.date}|${row.provider}`;
+        if ((rows.get(key)?.totalTokens ?? -1) < row.totalTokens) {
+            rows.set(key, row);
+        }
+    }
+
+    return sortLedgerRows([...rows.values()]);
+}
+
+function sortLedgerRows(rows) {
+    return rows.sort(
         (a, b) =>
             a.date.localeCompare(b.date) ||
             a.provider.localeCompare(b.provider),
@@ -382,7 +528,7 @@ function aggregate(rows, previousData, baseline, now) {
 
     const allDates = [...byDate.keys()].sort();
     if (allDates.length === 0) {
-        throw new Error("No Codex or Claude Code usage rows were found.");
+        throw new Error("No usage rows were found.");
     }
 
     const measurementStartedAt = [
@@ -465,10 +611,10 @@ function aggregate(rows, previousData, baseline, now) {
         measurementStartedAtDisplay: measurementStartedAt,
         generatedAt: timestampInSeoul(now),
         generatedAtDisplay: timestampDisplayInSeoul(now),
-        source: "ccusage local logs",
+        source: "ccusage local logs + xAI usage exports",
         scope: activeProviders,
         scopeDisplay: activeProviders.join(" + "),
-        disclosure: "SELF-REPORTED · LOCAL LOGS",
+        disclosure: "SELF-REPORTED · LOCAL LOGS + EXPORTS",
         costDisclosure:
             "ESTIMATED FROM MODEL LIST PRICES · NOT ACTUAL BILLING",
         totals: {
@@ -602,21 +748,31 @@ function main() {
     const codexHome = prepareCodexHome();
     let localRows;
     try {
-        localRows = PROVIDERS.flatMap((provider) => {
-            const rows = runCcusage(
-                provider,
-                provider.id === "codex" ? { CODEX_HOME: codexHome } : {},
-            );
-            console.log(`  ${provider.label}: ${rows.length} daily rows`);
-            return rows;
-        });
+        localRows = PROVIDERS.filter((provider) => provider.ccusage).flatMap(
+            (provider) => {
+                const rows = runCcusage(
+                    provider,
+                    provider.id === "codex" ? { CODEX_HOME: codexHome } : {},
+                );
+                console.log(`  ${provider.label}: ${rows.length} daily rows`);
+                return rows;
+            },
+        );
     } finally {
         rmSync(codexHome, { recursive: true, force: true });
     }
 
+    const importedRows = xaiCsvPath ? readXaiUsageCsv(xaiCsvPath) : [];
+    if (xaiCsvPath) {
+        console.log(`  xAI export: ${importedRows.length} daily rows`);
+    }
+
     const now = new Date();
     const ledger = readLedger();
-    const ledgerRows = mergeLedgerRows(ledger, localRows, now);
+    const ledgerRows = mergeImportedRows(
+        mergeLedgerRows(ledger, localRows, now),
+        importedRows,
+    );
     const previousData = readPreviousData();
     const aggregated = aggregate(
         ledgerRows,

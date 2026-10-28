@@ -19,6 +19,29 @@ The updater reads local Codex and Claude Code logs through `ccusage@latest`
 - `_data/ai_usage.json` for the Jekyll home page
 - `assets/generated/ai-usage.svg` for the GitHub profile
 
+## xAI usage exports
+
+xAI usage (grok-bot, grok-chat, and Cursor billed through xAI) has no local
+logs. Download the usage CSV from the xAI account and pass it in:
+
+```bash
+node scripts/update-ai-usage.mjs --xai-csv ~/Downloads/personal-unified-usage-YYYY-MM-DD.csv
+```
+
+Rows are grouped by KST day under the `xai` provider. On-demand rows use the
+billed amount. Included (subscription) rows are priced at the rates in
+`XAI_RATES`, which were backed out from on-demand rows and match the billed
+amounts exactly. grok-bot rows carry no model name and bill at two rate sets,
+so the higher one is used and its cost is an upper estimate. Image and audio
+usage is not token-based and is skipped.
+
+Exports are fixed billing records, so each day keeps the larger of the
+recorded and imported totals. Overlapping exports never double-count, and an
+export that covers only part of a day cannot lower it. The raw CSV contains
+account identifiers; do not commit it.
+
+## Codex compressed logs
+
 Codex compresses older rollouts to `.jsonl.zst`, which `ccusage` 20.0.20 and
 earlier do not read. The updater copies `sessions/` and `archived_sessions/` from
 `CODEX_HOME` (default `~/.codex`) into a temporary directory, decompresses the
