@@ -601,14 +601,50 @@
     {
       "date": "2026-10-28",
       "provider": "claude",
-      "totalTokens": 27341428,
-      "totalCostUSD": 16.266874
+      "totalTokens": 341835325,
+      "totalCostUSD": 154.513711
     },
     {
       "date": "2026-10-28",
       "provider": "codex",
-      "totalTokens": 350238047,
-      "totalCostUSD": 585.740541
+      "totalTokens": 667361898,
+      "totalCostUSD": 954.368386
+    },
+    {
+      "date": "2026-10-29",
+      "provider": "claude",
+      "totalTokens": 359015071,
+      "totalCostUSD": 163.518822
+    },
+    {
+      "date": "2026-10-29",
+      "provider": "codex",
+      "totalTokens": 469196029,
+      "totalCostUSD": 166.553452
+    },
+    {
+      "date": "2026-10-30",
+      "provider": "claude",
+      "totalTokens": 84708335,
+      "totalCostUSD": 47.896626
+    },
+    {
+      "date": "2026-10-30",
+      "provider": "codex",
+      "totalTokens": 57968162,
+      "totalCostUSD": 21.785291
+    },
+    {
+      "date": "2026-10-31",
+      "provider": "claude",
+      "totalTokens": 319292166,
+      "totalCostUSD": 283.634983
+    },
+    {
+      "date": "2026-10-31",
+      "provider": "codex",
+      "totalTokens": 2136197972,
+      "totalCostUSD": 2067.421697
     }
   ]
 }
